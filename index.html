@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>La Catedral · Tu Opinión</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --crimson: #8B1A1A;
+    --crimson-bright: #C0272D;
+    --gold: #C9A84C;
+    --gold-light: #E8D08A;
+    --bg-deep: #0D0C0B;
+    --bg-card: #161412;
+    --bg-surface: #1E1B18;
+    --text-primary: #F0EAE0;
+    --text-muted: #8A8075;
+    --border: rgba(201,168,76,0.2);
+    --border-hover: rgba(201,168,76,0.5);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Crimson Pro', Georgia, serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* === BACKGROUND TEXTURE === */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(139,26,26,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(201,168,76,0.06) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Subtle cross watermark */
+  body::after {
+    content: '✛';
+    position: fixed;
+    bottom: -80px;
+    right: -60px;
+    font-size: 400px;
+    color: rgba(139,26,26,0.04);
+    pointer-events: none;
+    z-index: 0;
+    line-height: 1;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+  }
+
+  /* === HEADER === */
+  .header {
+    text-align: center;
+    padding: 44px 0 32px;
+    animation: fadeDown 0.8s ease both;
+  }
+
+  .logo-wrap {
+    display: inline-block;
+    margin-bottom: 8px;
+  }
+
+  .logo-wrap img {
+    width: 180px;
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+  }
+
+  .tagline {
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-top: 4px;
+    opacity: 0.8;
+  }
+
+  /* === STEP INDICATOR === */
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 32px;
+    animation: fadeDown 0.9s ease 0.1s both;
+  }
+
+  .step-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    color: var(--text-muted);
+    transition: all 0.4s ease;
+    background: var(--bg-card);
+  }
+
+  .step-dot.active {
+    border-color: var(--gold);
+    color: var(--gold);
+    background: rgba(201,168,76,0.08);
+    box-shadow: 0 0 12px rgba(201,168,76,0.2);
+  }
+
+  .step-dot.done {
+    border-color: var(--crimson);
+    background: var(--crimson);
+    color: #fff;
+  }
+
+  .step-line {
+    width: 40px;
+    height: 1px;
+    background: var(--border);
+    transition: background 0.4s ease;
+  }
+
+  .step-line.done { background: var(--crimson); }
+
+  /* === CARD === */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 36px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.6;
+  }
+
+  .step-panel {
+    display: none;
+    animation: fadeIn 0.5s ease both;
+  }
+
+  .step-panel.active { display: block; }
+
+  .step-title {
+    font-family: 'Cinzel', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    letter-spacing: 0.5px;
+  }
+
+  .step-subtitle {
+    font-size: 15px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  /* === STAR RATING === */
+  .stars-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0 32px;
+  }
+
+  .star-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    transition: transform 0.15s ease;
+  }
+
+  .star-btn:active { transform: scale(0.9); }
+
+  .star-btn svg {
+    width: 48px;
+    height: 48px;
+    transition: all 0.2s ease;
+  }
+
+  .star-btn .star-fill {
+    fill: none;
+    transition: fill 0.2s ease;
+  }
+
+  .star-btn .star-stroke {
+    fill: none;
+    stroke: var(--text-muted);
+    stroke-width: 1.5;
+    transition: stroke 0.2s ease;
+  }
+
+  .star-btn.lit .star-fill { fill: var(--gold); }
+  .star-btn.lit .star-stroke { stroke: var(--gold); }
+  .star-btn.hover .star-fill { fill: var(--gold-light); }
+  .star-btn.hover .star-stroke { stroke: var(--gold-light); }
+
+  .stars-label {
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    min-height: 20px;
+    transition: opacity 0.3s;
+    margin-bottom: 8px;
+  }
+
+  /* === TEXTAREA === */
+  .field-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-family: 'Crimson Pro', serif;
+    font-size: 16px;
+    padding: 14px 16px;
+    resize: none;
+    outline: none;
+    transition: border-color 0.3s;
+    line-height: 1.6;
+    min-height: 110px;
+  }
+
+  textarea:focus { border-color: var(--gold); }
+  textarea::placeholder { color: var(--text-muted); font-style: italic; }
+
+  /* === INPUTS === */
+  .input-group {
+    margin-bottom: 18px;
+  }
+
+  input[type="text"],
+  input[type="tel"] {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-family: 'Crimson Pro', serif;
+    font-size: 17px;
+    padding: 13px 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+  }
+
+  input:focus { border-color: var(--gold); }
+  input::placeholder { color: var(--text-muted); font-style: italic; }
+
+  /* Phone input with flag */
+  .phone-wrap {
+    display: flex;
+    gap: 8px;
+  }
+
+  .country-select {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-primary);
+    font-size: 16px;
+    padding: 0 10px;
+    outline: none;
+    cursor: pointer;
+    min-width: 90px;
+    font-family: 'Crimson Pro', serif;
+    transition: border-color 0.3s;
+    -webkit-appearance: none;
+    text-align: center;
+  }
+
+  .country-select:focus { border-color: var(--gold); }
+
+  .phone-wrap input {
+    flex: 1;
+  }
+
+  /* === CONSENT === */
+  .consent-wrap {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(201,168,76,0.04);
+    border: 1px solid rgba(201,168,76,0.12);
+    border-radius: 3px;
+  }
+
+  .consent-wrap input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    accent-color: var(--crimson);
+    margin-top: 1px;
+    cursor: pointer;
+    border-radius: 0;
+  }
+
+  .consent-text {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .consent-text strong {
+    color: var(--text-primary);
+    font-weight: 400;
+  }
+
+  /* === COMMUNITY BADGE === */
+  .community-badge {
+    background: linear-gradient(135deg, rgba(139,26,26,0.15), rgba(201,168,76,0.08));
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 3px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .badge-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  .badge-title {
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .badge-desc {
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .perks-list {
+    list-style: none;
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .perks-list li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  .perk-icon {
+    width: 20px;
+    height: 20px;
+    background: rgba(139,26,26,0.3);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    flex-shrink: 0;
+  }
+
+  /* === BUTTONS === */
+  .btn-primary {
+    width: 100%;
+    background: var(--crimson);
+    border: none;
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'Cinzel', serif;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    margin-top: 24px;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.08), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.4s ease;
+  }
+
+  .btn-primary:hover {
+    background: var(--crimson-bright);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(139,26,26,0.4);
+  }
+
+  .btn-primary:hover::after { transform: translateX(100%); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  .btn-ghost {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    color: var(--text-muted);
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 12px;
+    cursor: pointer;
+    width: 100%;
+    margin-top: 10px;
+    transition: all 0.3s;
+  }
+
+  .btn-ghost:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  /* === SUCCESS SCREEN === */
+  .success-screen {
+    display: none;
+    text-align: center;
+    padding: 20px 0;
+    animation: fadeIn 0.6s ease both;
+  }
+
+  .success-icon {
+    font-size: 52px;
+    margin-bottom: 16px;
+    display: block;
+    animation: bounceIn 0.6s ease both;
+  }
+
+  .success-title {
+    font-family: 'Cinzel', serif;
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+  }
+
+  .success-msg {
+    font-size: 16px;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  /* Google Maps redirect CTA */
+  .google-cta {
+    display: none;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 20px;
+    text-align: center;
+  }
+
+  .google-cta-label {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .google-cta-text {
+    font-size: 15px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+
+  .btn-google {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+    color: #333;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Cinzel', serif;
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 12px 20px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+    font-weight: 600;
+  }
+
+  .btn-google:hover { box-shadow: 0 4px 14px rgba(255,255,255,0.2); transform: translateY(-1px); }
+
+  /* === DIVIDER === */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    color: var(--text-muted);
+    font-family: 'Cinzel', serif;
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* === FOOTER === */
+  .footer-note {
+    text-align: center;
+    font-size: 12px;
+    color: rgba(138,128,117,0.5);
+    margin-top: 20px;
+    font-style: italic;
+  }
+
+  /* === ANIMATIONS === */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounceIn {
+    0% { transform: scale(0.5); opacity: 0; }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(201,168,76,0.3); }
+    50% { box-shadow: 0 0 0 6px rgba(201,168,76,0); }
+  }
+
+  .card { animation: fadeIn 0.7s ease 0.2s both; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-wrap">
+      <img src="Logo_catedral_png.png" alt="La Catedral Bar · Restaurante">
+    </div>
+    <p class="tagline">Tu experiencia nos importa</p>
+  </div>
+
+  <!-- STEP INDICATOR -->
+  <div class="step-indicator" id="stepIndicator">
+    <div class="step-dot active" id="dot1">1</div>
+    <div class="step-line" id="line1"></div>
+    <div class="step-dot" id="dot2">2</div>
+    <div class="step-line" id="line2"></div>
+    <div class="step-dot" id="dot3">3</div>
+  </div>
+
+  <!-- CARD -->
+  <div class="card">
+
+    <!-- ═══ STEP 1: RATING ═══ -->
+    <div class="step-panel active" id="step1">
+      <div class="step-title">¿Cómo fue tu visita?</div>
+      <div class="step-subtitle">Tu opinión honesta nos ayuda a ser mejores cada día.</div>
+
+      <div class="stars-container" id="starsContainer">
+        <button class="star-btn" data-val="1" aria-label="1 estrella">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/><polygon class="star-stroke" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </button>
+        <button class="star-btn" data-val="2" aria-label="2 estrellas">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/><polygon class="star-stroke" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </button>
+        <button class="star-btn" data-val="3" aria-label="3 estrellas">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/><polygon class="star-stroke" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </button>
+        <button class="star-btn" data-val="4" aria-label="4 estrellas">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/><polygon class="star-stroke" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </button>
+        <button class="star-btn" data-val="5" aria-label="5 estrellas">
+          <svg viewBox="0 0 24 24"><polygon class="star-fill" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/><polygon class="star-stroke" points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/></svg>
+        </button>
+      </div>
+
+      <div class="stars-label" id="starsLabel">Toca para calificar</div>
+
+      <button class="btn-primary" id="btnStep1" disabled>Continuar →</button>
+    </div>
+
+    <!-- ═══ STEP 2: COMMENT ═══ -->
+    <div class="step-panel" id="step2">
+      <div class="step-title">Cuéntanos más</div>
+      <div class="step-subtitle" id="step2Subtitle">Nos alegra que hayas disfrutado. ¿Qué fue lo que más te gustó?</div>
+
+      <label class="field-label" for="commentField">Tu comentario</label>
+      <textarea id="commentField" placeholder="El ambiente, la comida, el servicio... todo cuenta." maxlength="500"></textarea>
+
+      <button class="btn-primary" id="btnStep2">Continuar →</button>
+      <button class="btn-ghost" onclick="goStep(3)">Omitir</button>
+    </div>
+
+    <!-- ═══ STEP 3: COMMUNITY ═══ -->
+    <div class="step-panel" id="step3">
+      <div class="step-title">Únete a nuestra comunidad</div>
+      <div class="step-subtitle">Sé el primero en enterarte de lo que pasa en La Catedral.</div>
+
+      <div class="community-badge">
+        <div class="badge-icon">
+          <svg width="36" height="36" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="24" fill="#25D366"/>
+            <path d="M34.5 13.4C32.1 11 28.9 9.5 25.5 9.5C18.5 9.5 12.8 15.2 12.8 22.2C12.8 24.5 13.4 26.7 14.6 28.6L12.5 36L20.1 33.9C21.9 34.9 24 35.5 26.1 35.5H26.2C33.2 35.5 38.5 29.8 38.5 22.8C38.5 19.4 37.1 16.2 34.5 13.4ZM25.5 33.2C23.6 33.2 21.8 32.7 20.2 31.7L19.8 31.5L15.7 32.6L16.8 28.6L16.5 28.2C15.4 26.5 14.9 24.5 14.9 22.3C14.9 16.5 19.6 11.8 25.4 11.8C28.2 11.8 30.8 12.9 32.7 14.8C34.6 16.7 35.8 19.4 35.8 22.2C35.9 28 31.3 33.2 25.5 33.2ZM31.2 25C30.9 24.8 29.3 24.1 29 24C28.7 23.8 28.5 23.8 28.3 24.1C28.1 24.4 27.5 25 27.3 25.3C27.1 25.5 26.9 25.5 26.6 25.4C25.3 24.8 24.4 24.2 23.4 22.8C23.2 22.5 23.4 22.3 23.6 22.1C23.8 21.9 24 21.7 24.1 21.5C24.2 21.3 24.3 21.1 24.2 20.9C24.1 20.7 23.5 19.1 23.2 18.5C23 17.9 22.7 18 22.5 18H22C21.8 18 21.5 18.1 21.3 18.3C21 18.6 20.3 19.3 20.3 20.9C20.3 22.5 21.3 24.1 21.5 24.3C21.7 24.5 23.5 27.3 26.3 28.7C28.9 30 29.2 29.8 29.8 29.7C30.4 29.6 31.6 29 31.9 28.3C32.2 27.6 32.2 27 32.1 26.9C32 26.4 31.5 25.2 31.2 25Z" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <div class="badge-title">ÚNETE A NUESTRA COMUNIDAD DE WHATSAPP</div>
+          <div class="badge-desc">Transmisiones en vivo, partidos exclusivos y más directo a tu celular.</div>
+        </div>
+      </div>
+
+      <ul class="perks-list">
+        <li><div class="perk-icon">⚽</div> Partidos y eventos deportivos en vivo</li>
+        <li><div class="perk-icon">🍷</div> Promociones exclusivas para miembros</li>
+        <li><div class="perk-icon">🎉</div> Novedades, menús especiales y sorpresas</li>
+        <li><div class="perk-icon">🔔</div> Reservaciones prioritarias en eventos</li>
+      </ul>
+
+      <div class="divider">Tus datos</div>
+
+      <div class="input-group">
+        <label class="field-label" for="nameField">Nombre <span style="color:var(--text-muted);font-size:11px;">(opcional)</span></label>
+        <input type="text" id="nameField" placeholder="¿Cómo te llamamos?">
+      </div>
+
+      <div class="input-group">
+        <label class="field-label" for="phoneField">Celular <span style="color:var(--crimson-bright);font-size:11px;">*</span></label>
+        <div class="phone-wrap">
+          <select class="country-select" id="countryCode">
+            <option value="+53">🇨🇺 +53</option>
+            <option value="+54">🇦🇷 +54</option>
+            <option value="+591">🇧🇴 +591</option>
+            <option value="+56">🇨🇱 +56</option>
+            <option value="+57">🇨🇴 +57</option>
+            <option value="+506">🇨🇷 +506</option>
+            <option value="+593">🇪🇨 +593</option>
+            <option value="+503">🇸🇻 +503</option>
+            <option value="+502">🇬🇹 +502</option>
+            <option value="+504">🇭🇳 +504</option>
+            <option value="+52">🇲🇽 +52</option>
+            <option value="+505">🇳🇮 +505</option>
+            <option value="+507">🇵🇦 +507</option>
+            <option value="+595">🇵🇾 +595</option>
+            <option value="+51">🇵🇪 +51</option>
+            <option value="+1">🇺🇸 +1</option>
+            <option value="+598">🇺🇾 +598</option>
+            <option value="+58">🇻🇪 +58</option>
+            <option value="+34">🇪🇸 +34</option>
+          </select>
+          <input type="tel" id="phoneField" placeholder="Ej: 11 2345 6789" inputmode="numeric">
+        </div>
+      </div>
+
+      <div class="consent-wrap">
+        <input type="checkbox" id="consentCheck">
+        <label class="consent-text" for="consentCheck">
+          Acepto unirme a la <strong>Comunidad de WhatsApp de La Catedral</strong> y recibir 
+          transmisiones deportivas, promociones exclusivas y novedades. Puedo salir cuando quiera.
+        </label>
+      </div>
+
+      <button class="btn-primary" id="btnStep3" disabled>Unirme a la comunidad ✦</button>
+      <button class="btn-ghost" onclick="submitWithoutPhone()">Enviar solo mi opinión</button>
+    </div>
+
+    <!-- ═══ SUCCESS ═══ -->
+    <div class="success-screen" id="successScreen">
+      <span class="success-icon" id="successIcon">✦</span>
+      <div class="success-title" id="successTitle">¡Gracias por tu opinión!</div>
+      <p class="success-msg" id="successMsg">Tu comentario nos ayuda a mejorar cada día. ¡Esperamos verte pronto!</p>
+
+      <!-- Solo aparece si rating >= 4 -->
+      <div class="google-cta" id="googleCta">
+        <span class="google-cta-label">Un paso más ·</span>
+        <p class="google-cta-text">¿Nos ayudas con una reseña en Google? Toma solo 30 segundos y hace una diferencia enorme. 🙏</p>
+        <a class="btn-google" href="https://www.google.com/search?q=La+Catedral+Bar+Restaurante+Vedado+Havana+Cuba#lrd=0x0:0x0,1" target="_blank" id="googleReviewBtn">
+          <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+          Dejar reseña en Google
+        </a>
+      </div>
+    </div>
+
+  </div><!-- /card -->
+
+  <div class="footer-note">Tu privacidad es sagrada para nosotros · La Catedral Bar·Restaurante</div>
+
+</div><!-- /container -->
+
+<script>
+  // ─── STATE ───
+  let currentStep = 1;
+  let selectedRating = 0;
+
+  const starLabels = ['', 'Mejorable', 'Regular', 'Buena', '¡Muy buena!', '¡Excelente! ⭐'];
+
+  // ─── STARS ───
+  const stars = document.querySelectorAll('.star-btn');
+  const starsLabel = document.getElementById('starsLabel');
+  const btnStep1 = document.getElementById('btnStep1');
+
+  stars.forEach(star => {
+    star.addEventListener('click', () => {
+      selectedRating = parseInt(star.dataset.val);
+      updateStars(selectedRating);
+      starsLabel.textContent = starLabels[selectedRating];
+      btnStep1.disabled = false;
+      btnStep1.style.animation = 'pulse-gold 0.8s ease';
+    });
+
+    star.addEventListener('mouseenter', () => {
+      const hoverVal = parseInt(star.dataset.val);
+      stars.forEach(s => {
+        const v = parseInt(s.dataset.val);
+        s.classList.toggle('hover', v <= hoverVal && v > selectedRating);
+      });
+    });
+
+    star.addEventListener('mouseleave', () => {
+      stars.forEach(s => s.classList.remove('hover'));
+    });
+  });
+
+  function updateStars(val) {
+    stars.forEach(s => {
+      s.classList.toggle('lit', parseInt(s.dataset.val) <= val);
+    });
+  }
+
+  // ─── NAVIGATION ───
+  document.getElementById('btnStep1').addEventListener('click', () => {
+    if (!selectedRating) return;
+    // Ajustar subtítulo según rating
+    const sub = document.getElementById('step2Subtitle');
+    if (selectedRating >= 4) {
+      sub.textContent = '¡Nos alegra mucho! ¿Qué fue lo que más disfrutaste?';
+    } else {
+      sub.textContent = 'Queremos mejorar. ¿Qué podríamos haber hecho mejor?';
+    }
+    goStep(2);
+  });
+
+  document.getElementById('btnStep2').addEventListener('click', () => goStep(3));
+
+  function goStep(n) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep = n;
+    document.getElementById('step' + currentStep).classList.add('active');
+    updateDots();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function updateDots() {
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById('dot' + i);
+      dot.classList.remove('active', 'done');
+      if (i < currentStep) dot.classList.add('done'), dot.textContent = '✓';
+      else if (i === currentStep) dot.classList.add('active');
+    }
+    for (let i = 1; i <= 2; i++) {
+      document.getElementById('line' + i).classList.toggle('done', i < currentStep);
+    }
+  }
+
+  // ─── STEP 3: PHONE + CONSENT ───
+  const phoneField = document.getElementById('phoneField');
+  const consentCheck = document.getElementById('consentCheck');
+  const btnStep3 = document.getElementById('btnStep3');
+
+  function checkStep3() {
+    const hasPhone = phoneField.value.replace(/\D/g, '').length >= 7;
+    const hasConsent = consentCheck.checked;
+    btnStep3.disabled = !(hasPhone && hasConsent);
+  }
+
+  phoneField.addEventListener('input', checkStep3);
+  consentCheck.addEventListener('change', checkStep3);
+
+  // Format phone as user types
+  phoneField.addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '');
+    this.value = v;
+  });
+
+  // ─── SUBMIT WITH COMMUNITY ───
+  btnStep3.addEventListener('click', () => {
+    const name = document.getElementById('nameField').value.trim();
+    const country = document.getElementById('countryCode').value;
+    const phone = country + phoneField.value.replace(/\D/g, '');
+
+    submitData({ name, phone, rating: selectedRating, comment: document.getElementById('commentField').value, joined: true });
+    showSuccess(true);
+  });
+
+  // ─── SUBMIT WITHOUT PHONE ───
+  function submitWithoutPhone() {
+    submitData({ name: '', phone: '', rating: selectedRating, comment: document.getElementById('commentField').value, joined: false });
+    showSuccess(false);
+  }
+
+  // ─── SUBMIT DATA (adaptable) ───
+  function submitData(data) {
+    console.log('📊 Data to send:', data);
+    // ─── INTEGRACIÓN ───
+    // Opción A: Google Sheets vía Apps Script
+    // fetch('TU_APPS_SCRIPT_URL', { method:'POST', body: JSON.stringify(data) });
+    //
+    // Opción B: WhatsApp API / Twilio
+    // fetch('/api/whatsapp', { method:'POST', body: JSON.stringify(data) });
+    //
+    // Opción C: Email via EmailJS
+    // emailjs.send('service_id', 'template_id', data);
+  }
+
+  // ─── SHOW SUCCESS ───
+  function showSuccess(joined) {
+    document.getElementById('stepIndicator').style.display = 'none';
+    document.getElementById('step3').classList.remove('active');
+
+    const ss = document.getElementById('successScreen');
+    ss.style.display = 'block';
+
+    if (joined) {
+      document.getElementById('successIcon').textContent = '🎉';
+      document.getElementById('successTitle').textContent = '¡Bienvenido a la comunidad!';
+      document.getElementById('successMsg').textContent = 'Te enviaremos los próximos partidos y novedades directo a tu WhatsApp. ¡Hasta pronto!';
+    } else {
+      document.getElementById('successIcon').textContent = '✦';
+      document.getElementById('successTitle').textContent = '¡Gracias por tu opinión!';
+      document.getElementById('successMsg').textContent = 'Tu comentario nos ayuda a ser mejores cada día. ¡Esperamos verte pronto!';
+    }
+
+    // Si el rating fue 4 o 5, mostrar CTA de Google
+    if (selectedRating >= 4) {
+      const gCta = document.getElementById('googleCta');
+      gCta.style.display = 'block';
+      // 🔧 REEMPLAZAR con tu link real de Google Reviews
+      // document.getElementById('googleReviewBtn').href = 'https://g.page/r/TU_PLACE_ID/review';
+    }
+  }
+</script>
+</body>
+</html>
